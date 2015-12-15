@@ -13,6 +13,19 @@
 
 package org.cloudfoundry.identity.uaa.web;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,20 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  *
@@ -78,7 +77,7 @@ public class CorsFilter extends OncePerRequestFilter {
 
     private final List<Pattern> corsXhrAllowedOriginPatterns = new ArrayList<>();
 
-    @Value("#{'${cors.xhr.allowed.headers:Accept,Authorization}'.split(',')}")
+    @Value("#{'${cors.xhr.allowed.headers:Accept,Authorization,Content-Type}'.split(',')}")
     private List<String> allowedHeaders;
 
     @PostConstruct
@@ -160,7 +159,9 @@ public class CorsFilter extends OncePerRequestFilter {
         if (request.getHeader("Access-Control-Request-Method") != null && "OPTIONS".equals(request.getMethod())) {
             // CORS "pre-flight" request
             response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-            response.addHeader("Access-Control-Allow-Headers", "Authorization");
+            for (String allowedHeader : allowedHeaders) {
+                response.addHeader("Access-Control-Allow-Headers", allowedHeader);
+            }
             response.addHeader("Access-Control-Max-Age", "1728000");
         } else {
             filterChain.doFilter(request, response);
