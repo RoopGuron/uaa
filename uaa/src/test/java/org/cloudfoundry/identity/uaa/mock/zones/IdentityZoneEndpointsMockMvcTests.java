@@ -60,6 +60,8 @@ import java.util.UUID;
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.LOGIN_SERVER;
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.UAA;
 import static org.cloudfoundry.identity.uaa.mock.util.MockMvcUtils.CookieCsrfPostProcessor.cookieCsrf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -554,7 +556,7 @@ public class IdentityZoneEndpointsMockMvcTests extends InjectedMockContextTest {
 
         //ensure we have some audit records
         //this doesn't work yet
-        //assertThat(template.queryForInt("select count(*) from sec_audit where identity_zone_id=?", user.getZoneId()), greaterThan(0));
+        //assertThat(template.queryForObject("select count(*) from sec_audit where identity_zone_id=?", new Object[] {user.getZoneId()}, Integer.class), greaterThan(0));
         //create an external group map
         IdentityZoneHolder.set(zone);
         ScimGroupExternalMember externalMember = externalMembershipManager.mapExternalGroup(group.getId(), "externalDeleteGroup", LOGIN_SERVER);
@@ -583,24 +585,24 @@ public class IdentityZoneEndpointsMockMvcTests extends InjectedMockContextTest {
                 .accept(APPLICATION_JSON))
             .andExpect(status().isNotFound());
 
-        assertEquals(0, template.queryForInt("select count(*) from identity_zone where id=?", zone.getId()));
+        assertThat(template.queryForObject("select count(*) from identity_zone where id=?", new Object[] {zone.getId()}, Integer.class), is(0));
 
-        assertEquals(0, template.queryForInt("select count(*) from oauth_client_details where identity_zone_id=?", zone.getId()));
+        assertThat(template.queryForObject("select count(*) from oauth_client_details where identity_zone_id=?", new Object[] {zone.getId()}, Integer.class), is(0));
 
-        assertEquals(0, template.queryForInt("select count(*) from groups where identity_zone_id=?", zone.getId()));
+        assertThat(template.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {zone.getId()}, Integer.class), is(0));
 
-        assertEquals(0, template.queryForInt("select count(*) from sec_audit where identity_zone_id=?", zone.getId()));
+        assertThat(template.queryForObject("select count(*) from sec_audit where identity_zone_id=?", new Object[] {zone.getId()}, Integer.class), is(0));
 
-        assertEquals(0, template.queryForInt("select count(*) from users where identity_zone_id=?", zone.getId()));
+        assertThat(template.queryForObject("select count(*) from users where identity_zone_id=?", new Object[] {zone.getId()}, Integer.class), is(0));
 
-        assertEquals(0, template.queryForInt("select count(*) from external_group_mapping where origin=?", LOGIN_SERVER));
+        assertThat(template.queryForObject("select count(*) from external_group_mapping where origin=?", new Object[] {LOGIN_SERVER}, Integer.class), is(0));
         try {
             externalMembershipManager.getExternalGroupMapsByGroupId(group.getId(), LOGIN_SERVER);
             fail("no external groups should be found");
         } catch (ScimResourceNotFoundException e) {
         }
 
-        assertEquals(0, template.queryForInt("select count(*) from authz_approvals where user_id=?", user.getId()));
+        assertThat(template.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {user.getId()}, Integer.class), is(0));
         assertEquals(0, approvalStore.getApprovals(user.getId(), client.getClientId()).size());
 
 

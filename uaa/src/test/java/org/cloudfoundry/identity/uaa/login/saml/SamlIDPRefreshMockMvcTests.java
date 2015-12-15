@@ -35,6 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -137,7 +138,7 @@ public class SamlIDPRefreshMockMvcTests extends InjectedMockContextTest {
         EntityDeletedEvent event = new EntityDeletedEvent(provider);
         getWebApplicationContext().publishEvent(event);
         //verify that provider is deleted
-        assertEquals(0, getWebApplicationContext().getBean(JdbcTemplate.class).queryForInt("select count(*) from identity_provider where id=?", provider.getId()));
+        assertThat(getWebApplicationContext().getBean(JdbcTemplate.class).queryForObject("select count(*) from identity_provider where id=?", new Object[] {provider.getId()}, Integer.class), is(0));
         //issue a timer
         zoneAwareMetadataManager.refreshAllProviders();
         //ensure that it the link doesn't show up

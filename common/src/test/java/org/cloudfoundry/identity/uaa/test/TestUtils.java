@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 
 import java.sql.Connection;
@@ -69,7 +71,7 @@ public class TestUtils {
     }
 
     public static void assertNoSuchUser(JdbcTemplate template, String column, String value) {
-        assertEquals(0, template.queryForInt("select count(id) from users where " + column + "='" + value + "'"));
+        assertThat(template.queryForObject("select count(id) from users where " + column + "='" + value + "'", Integer.class), is(0));
     }
 
 }

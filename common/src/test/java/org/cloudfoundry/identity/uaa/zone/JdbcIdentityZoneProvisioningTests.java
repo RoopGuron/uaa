@@ -7,7 +7,9 @@ import org.junit.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class JdbcIdentityZoneProvisioningTests extends JdbcTestBase {
@@ -26,16 +28,16 @@ public class JdbcIdentityZoneProvisioningTests extends JdbcTestBase {
         identityZone.setConfig(new IdentityZoneConfiguration(new TokenPolicy(3600, 7200)));
 
         IdentityZone createdIdZone = db.create(identityZone);
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from identity_zone where id = ?", createdIdZone.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_zone where id = ?", new Object[] {createdIdZone.getId()}, Integer.class), is(1));
         db.onApplicationEvent(new EntityDeletedEvent<>(identityZone));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from identity_zone where id = ?", createdIdZone.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_zone where id = ?", new Object[] {createdIdZone.getId()}, Integer.class), is(0));
     }
 
     @Test
     public void test_cannot_delete_uaa_zone() {
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from identity_zone where id = ?", IdentityZone.getUaa().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_zone where id = ?", new Object[] {IdentityZone.getUaa().getId()}, Integer.class), is(1));
         db.onApplicationEvent(new EntityDeletedEvent<>(IdentityZone.getUaa()));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from identity_zone where id = ?", IdentityZone.getUaa().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_zone where id = ?", new Object[] {IdentityZone.getUaa().getId()}, Integer.class), is(1));
     }
 
     @Test

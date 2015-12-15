@@ -46,6 +46,7 @@ import org.cloudfoundry.identity.uaa.zone.IdentityProviderProvisioning;
 import org.cloudfoundry.identity.uaa.zone.IdentityZone;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneHolder;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneProvisioning;
+import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,10 +92,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.stringContainsInOrder;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -816,16 +826,16 @@ public class TokenMvcMockTests extends InjectedMockContextTest {
     @Test
     public void testImplicitGrantWithFragmentInRedirectURL() throws Exception {
         String redirectUri = "https://example.com/dashboard/?appGuid=app-guid#test";
-        testImplicitGrantRedirectUri(redirectUri, "&");
+        testImplicitGrantRedirectUri(redirectUri);
     }
 
     @Test
     public void testImplicitGrantWithNoFragmentInRedirectURL() throws Exception {
         String redirectUri = "https://example.com/dashboard/?appGuid=app-guid";
-        testImplicitGrantRedirectUri(redirectUri, "#");
+        testImplicitGrantRedirectUri(redirectUri);
     }
 
-    protected void testImplicitGrantRedirectUri(String redirectUri, String delim) throws Exception {
+    protected void testImplicitGrantRedirectUri(String redirectUri) throws Exception {
         String clientId = "authclient-"+new RandomValueStringGenerator().generate();
         String scopes = "openid";
         setUpClients(clientId, scopes, scopes, GRANT_TYPES, true, redirectUri);
@@ -857,7 +867,22 @@ public class TokenMvcMockTests extends InjectedMockContextTest {
 
         MvcResult result = getMockMvc().perform(authRequest).andExpect(status().is3xxRedirection()).andReturn();
         String location = result.getResponse().getHeader("Location");
-        assertTrue(location.startsWith(redirectUri + delim + "token_type=bearer&access_token"));
+
+        constainsExactlyOneInstance(location, "#");
+        String[] locationParts = location.split("#");
+
+        String locationUri = locationParts[0];
+        String locationToken = locationParts[1];
+
+        assertEquals(redirectUri.split("#")[0], locationUri);
+        String[] locationParams = locationToken.split("&");
+        assertThat(Arrays.asList(locationParams), hasItem(is("token_type=bearer")));
+        assertThat(Arrays.asList(locationParams), hasItem(startsWith("access_token=")));
+    }
+
+    private static void constainsExactlyOneInstance(String string, String substring) {
+        assertTrue(string.contains(substring));
+        assertEquals(string.indexOf(substring), string.lastIndexOf(substring));
     }
 
 

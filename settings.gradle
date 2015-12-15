@@ -18,3 +18,6 @@ project(':cloudfoundry-identity-uaa').projectDir = "$rootDir/uaa" as File
 project(':cloudfoundry-identity-samples:cloudfoundry-identity-api').projectDir = "$rootDir/samples/api" as File
 project(':cloudfoundry-identity-samples:cloudfoundry-identity-app').projectDir = "$rootDir/samples/app" as File
 project(':cloudfoundry-identity-samples').projectDir = "$rootDir/samples" as File
+include 'server'
+findProject(':server')?.name = 'cloudfoundry-identity-server'
+

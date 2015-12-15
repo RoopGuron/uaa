@@ -29,10 +29,12 @@ import java.util.Map;
 
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.LOGIN_SERVER;
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.UAA;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 
@@ -94,23 +96,13 @@ public class MultitenantJdbcClientDetailsServiceTests {
         clientDetails.setClientSecret("secret");
         service.addClientDetails(clientDetails);
         clientDetails = (BaseClientDetails)service.loadClientByClientId(id);
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from oauth_client_details where identity_zone_id=?",
-                IdentityZoneHolder.get().getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from oauth_client_details where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(1));
         addApproval(id);
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where client_id=?", id));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where client_id=?", new Object[] {id}, Integer.class), is(1));
 
         service.onApplicationEvent(new EntityDeletedEvent<>(IdentityZoneHolder.get()));
-        assertEquals(0,
-            jdbcTemplate.queryForInt(
-                "select count(*) from oauth_client_details where identity_zone_id=?",
-                IdentityZoneHolder.get().getId()
-            )
-        );
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals where client_id=?", id));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from oauth_client_details where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where client_id=?", new Object[] {id}, Integer.class), is(0));
     }
 
     @Test
@@ -121,23 +113,13 @@ public class MultitenantJdbcClientDetailsServiceTests {
         clientDetails.setClientSecret("secret");
         service.addClientDetails(clientDetails);
         clientDetails = (BaseClientDetails)service.loadClientByClientId(id);
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from oauth_client_details where identity_zone_id=?",
-                IdentityZoneHolder.get().getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from oauth_client_details where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(1));
         addApproval(id);
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where client_id=?", id));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where client_id=?", new Object[] {id}, Integer.class), is(1));
 
         service.onApplicationEvent(new EntityDeletedEvent<>(IdentityZoneHolder.get()));
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from oauth_client_details where identity_zone_id=?",
-                IdentityZoneHolder.get().getId()
-            )
-        );
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where client_id=?", id));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from oauth_client_details where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(1));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where client_id=?", new Object[] {id}, Integer.class), is (1));
     }
 
 

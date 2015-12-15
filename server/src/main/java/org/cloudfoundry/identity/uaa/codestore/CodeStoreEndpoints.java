@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.codestore;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.cloudfoundry.identity.uaa.error.ConvertingExceptionView;
 import org.cloudfoundry.identity.uaa.error.ExceptionReport;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,6 +28,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.View;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class CodeStoreEndpoints {

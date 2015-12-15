@@ -12,29 +12,24 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.codestore;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.cloudfoundry.identity.uaa.test.JdbcTestBase;
 import org.cloudfoundry.identity.uaa.test.TestUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.Mockito;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
+
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class ExpiringCodeStoreTests extends JdbcTestBase {
@@ -74,14 +69,14 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 60000);
         ExpiringCode expiringCode = expiringCodeStore.generateCode(data, expiresAt, null);
 
-        assertNotNull(expiringCode);
+        Assert.assertNotNull(expiringCode);
 
-        assertNotNull(expiringCode.getCode());
-        assertTrue(expiringCode.getCode().trim().length() > 0);
+        Assert.assertNotNull(expiringCode.getCode());
+        Assert.assertTrue(expiringCode.getCode().trim().length() > 0);
 
-        assertEquals(expiresAt, expiringCode.getExpiresAt());
+        Assert.assertEquals(expiresAt, expiringCode.getExpiresAt());
 
-        assertEquals(data, expiringCode.getData());
+        Assert.assertEquals(data, expiringCode.getData());
     }
 
     @Test(expected = NullPointerException.class)
@@ -107,8 +102,8 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
 
     @Test(expected = DataIntegrityViolationException.class)
     public void testGenerateCodeWithDuplicateCode() throws Exception {
-        RandomValueStringGenerator generator = mock(RandomValueStringGenerator.class);
-        when(generator.generate()).thenReturn("duplicate");
+        RandomValueStringGenerator generator = Mockito.mock(RandomValueStringGenerator.class);
+        Mockito.when(generator.generate()).thenReturn("duplicate");
         expiringCodeStore.setGenerator(generator);
 
         String data = "{}";
@@ -125,16 +120,16 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
 
         ExpiringCode retrievedCode = expiringCodeStore.retrieveCode(generatedCode.getCode());
 
-        assertEquals(generatedCode, retrievedCode);
+        Assert.assertEquals(generatedCode, retrievedCode);
 
-        assertNull(expiringCodeStore.retrieveCode(generatedCode.getCode()));
+        Assert.assertNull(expiringCodeStore.retrieveCode(generatedCode.getCode()));
     }
 
     @Test
     public void testRetrieveCodeWithCodeNotFound() throws Exception {
         ExpiringCode retrievedCode = expiringCodeStore.retrieveCode("unknown");
 
-        assertNull(retrievedCode);
+        Assert.assertNull(retrievedCode);
     }
 
     @Test(expected = NullPointerException.class)
@@ -151,7 +146,7 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
                         System.currentTimeMillis() + 60000), null);
         String code = expiringCode.getCode();
         ExpiringCode actualCode = expiringCodeStore.retrieveCode(code);
-        assertEquals(expiringCode, actualCode);
+        Assert.assertEquals(expiringCode, actualCode);
     }
 
     @Test
@@ -162,7 +157,7 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
         Thread.currentThread();
         Thread.sleep(1001);
         ExpiringCode retrievedCode = expiringCodeStore.retrieveCode(generatedCode.getCode());
-        assertNull(retrievedCode);
+        Assert.assertNull(retrievedCode);
     }
 
     @Test
@@ -173,20 +168,20 @@ public class ExpiringCodeStoreTests extends JdbcTestBase {
 
         ExpiringCode retrievedCode = expiringCodeStore.retrieveCode(code.getCode());
 
-        assertNull(retrievedCode);
+        Assert.assertNull(retrievedCode);
     }
 
     @Test
     public void testDatabaseDown() throws Exception {
         if (JdbcExpiringCodeStore.class == expiringCodeStoreClass) {
-            javax.sql.DataSource ds = mock(javax.sql.DataSource.class);
-            when(ds.getConnection()).thenThrow(new SQLException());
+            javax.sql.DataSource ds = Mockito.mock(javax.sql.DataSource.class);
+            Mockito.when(ds.getConnection()).thenThrow(new SQLException());
             ((JdbcExpiringCodeStore) expiringCodeStore).setDataSource(ds);
             try {
                 String data = "{}";
                 Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 10000000);
                 ExpiringCode generatedCode = expiringCodeStore.generateCode(data, expiresAt, null);
-                fail("Database is down, should not generate a code");
+                Assert.fail("Database is down, should not generate a code");
             } catch (DataAccessException x) {
 
             }

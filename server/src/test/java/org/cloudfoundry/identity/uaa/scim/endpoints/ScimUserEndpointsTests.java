@@ -67,13 +67,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -369,7 +368,7 @@ public class ScimUserEndpointsTests {
             assertTrue("Wrong message: " + message, message.contains("email"));
         }
         JdbcTemplate jdbcTemplate = new JdbcTemplate(database);
-        int count = jdbcTemplate.queryForInt("select count(*) from users where userName=?", "dave");
+        int count = jdbcTemplate.queryForObject("select count(*) from users where userName=?", new Object[] {"dave"}, Integer.class);
         assertEquals(0, count);
     }
 

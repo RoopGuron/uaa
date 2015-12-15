@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -50,9 +52,9 @@ public class JdbcIdentityProviderProvisioningTests extends JdbcTestBase {
         IdentityProvider idp = MultitenancyFixture.identityProvider(originKey, zoneId);
         IdentityProvider createdIdp = db.create(idp);
         assertNotNull(createdIdp);
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(1));
         db.onApplicationEvent(new EntityDeletedEvent<>(IdentityZoneHolder.get()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
     }
 
     @Test
@@ -62,19 +64,19 @@ public class JdbcIdentityProviderProvisioningTests extends JdbcTestBase {
         IdentityProvider idp = MultitenancyFixture.identityProvider(originKey, zoneId);
         IdentityProvider createdIdp = db.create(idp);
         assertNotNull(createdIdp);
-        assertEquals(5, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(5));
         db.onApplicationEvent(new EntityDeletedEvent<>(createdIdp));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
     }
 
     @Test
     public void test_cannot_delete_uaa_providers() {
         //action try to delete uaa provider
         //should not do anything
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
         IdentityProvider uaa = db.retrieveByOrigin(OriginKeys.UAA, IdentityZoneHolder.get().getId());
         db.onApplicationEvent(new EntityDeletedEvent<>(uaa));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from identity_provider where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from identity_provider where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
     }
 
     @Test

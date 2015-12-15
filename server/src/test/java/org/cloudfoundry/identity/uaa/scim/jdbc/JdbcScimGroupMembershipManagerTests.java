@@ -43,10 +43,12 @@ import java.util.Set;
 
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.LOGIN_SERVER;
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.UAA;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -129,7 +131,7 @@ public class JdbcScimGroupMembershipManagerTests extends JdbcTestBase {
     }
 
     private void validateCount(int expected) {
-        int existingMemberCount = jdbcTemplate.queryForInt("select count(*) from groups g, group_membership gm where g.identity_zone_id=? and gm.group_id=g.id", IdentityZoneHolder.get().getId());
+        int existingMemberCount = jdbcTemplate.queryForObject("select count(*) from groups g, group_membership gm where g.identity_zone_id=? and gm.group_id=g.id", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class);
         assertEquals(expected, existingMemberCount);
     }
 
@@ -255,56 +257,56 @@ public class JdbcScimGroupMembershipManagerTests extends JdbcTestBase {
     public void test_zone_deleted() {
         IdentityZoneHolder.set(zone);
         addMembers();
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from external_group_mapping where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from external_group_mapping where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
         gdao.onApplicationEvent(new EntityDeletedEvent<>(zone));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from external_group_mapping where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from external_group_mapping where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
     }
 
     @Test
     public void test_provider_deleted() {
         IdentityZoneHolder.set(zone);
         addMembers(LOGIN_SERVER);
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from external_group_mapping where origin = ? and group_id in (select id from groups where identity_zone_id=?)", LOGIN_SERVER, IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from external_group_mapping where origin = ? and group_id in (select id from groups where identity_zone_id=?)", new Object[] {LOGIN_SERVER, IdentityZoneHolder.get().getId()}, Integer.class), is(1));
 
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(LOGIN_SERVER)
                 .setIdentityZoneId(zone.getId());
         gdao.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from external_group_mapping where origin = ? and group_id in (select id from groups where identity_zone_id=?)", LOGIN_SERVER, IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from external_group_mapping where origin = ? and group_id in (select id from groups where identity_zone_id=?)", new Object[] {LOGIN_SERVER, IdentityZoneHolder.get().getId()}, Integer.class), is(0));
     }
 
     @Test
     public void test_cannot_delete_uaa_zone() {
         addMembers();
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
         gdao.onApplicationEvent(new EntityDeletedEvent<>(IdentityZone.getUaa()));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
     }
 
     @Test
     public void test_cannot_delete_uaa_provider() {
         IdentityZoneHolder.set(zone);
         addMembers(LOGIN_SERVER);
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(UAA)
                 .setIdentityZoneId(zone.getId());
         gdao.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(4, jdbcTemplate.queryForInt("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", IdentityZoneHolder.get().getId()));
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from groups where identity_zone_id=?", IdentityZoneHolder.get().getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where group_id in (select id from groups where identity_zone_id=?)", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(4));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from groups where identity_zone_id=?", new Object[] {IdentityZoneHolder.get().getId()}, Integer.class), is(3));
 
     }
 

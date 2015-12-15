@@ -1,0 +1,59 @@
+description = 'CloudFoundry Identity Server JAR'
+
+Project identityModel = parent.subprojects.find { it.name.equals('cloudfoundry-identity-model') }
+
+// temporary
+Project identityCommon = parent.subprojects.find { it.name.equals('cloudfoundry-identity-common') }
+Project identityScim= parent.subprojects.find { it.name.equals('cloudfoundry-identity-scim') }
+Project identityLogin = parent.subprojects.find { it.name.equals('cloudfoundry-identity-login') }
+
+dependencies {
+
+  compile(identityModel)
+
+  // temporary dependencies
+  compile(identityCommon)
+  compile(identityScim)
+  compile(identityLogin)
+
+  compile group: 'commons-logging', name: 'commons-logging', version: parent.commonsLoggingVersion
+  compile group: 'org.springframework', name: 'spring-beans', version: parent.springVersion
+  compile group: 'org.springframework', name: 'spring-web', version: parent.springVersion
+  compile group: 'org.springframework.security', name: 'spring-security-core', version: parent.springSecurityVersion
+  compile group: 'org.springframework.security', name: 'spring-security-jwt', version: parent.springSecurityJwtVersion
+  compile(group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: parent.springSecurityOAuthVersion) {
+    exclude(module: 'commons-codec')
+    exclude(module: 'jackson-mapper-asl')
+  }
+  compile group: 'org.springframework', name: 'spring-context', version: parent.springVersion
+  compile group: 'org.springframework', name: 'spring-tx', version: parent.springVersion
+  compile group: 'org.springframework', name: 'spring-jdbc', version: parent.springVersion
+
+  compile group: 'org.thymeleaf', name: 'thymeleaf-spring4', version: parent.thymeleafVersion
+
+  compile(group: 'com.unboundid.product.scim', name: 'scim-sdk', version: '1.6.0') {
+    exclude(module: 'servlet-api')
+    exclude(module: 'commons-logging')
+    exclude(module: 'httpclient')
+    exclude(module: 'wink-client-apache-httpclient')
+  }
+
+  provided group: 'javax.servlet', name: 'javax.servlet-api', version: parent.servletVersion
+
+  testCompile group: 'junit', name: 'junit', version: parent.junitVersion
+  testCompile group: 'org.mockito', name: 'mockito-all', version: parent.mockitoVersion
+  testCompile group: 'org.springframework', name: 'spring-test', version: parent.springVersion
+  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: parent.hamcrestVersion
+
+  testCompile group: 'org.flywaydb', name: 'flyway-core', version: parent.flywayVersion
+}
+
+processResources {
+  //maven replaces project.artifactId in the log4j.properties file
+  //https://www.pivotaltracker.com/story/show/74344574
+  filter { line -> line.contains('${project.artifactId}') ? line.replace('${project.artifactId}','cloudfoundry-identity-server') : line }
+}
+
+integrationTest {}.onlyIf { //disable since we don't have any
+  true == false
+}

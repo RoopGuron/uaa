@@ -55,6 +55,8 @@ import java.util.UUID;
 
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.LOGIN_SERVER;
 import static org.cloudfoundry.identity.uaa.constants.OriginKeys.UAA;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -107,7 +109,7 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         db.setQueryConverter(filterConverter);
         BCryptPasswordEncoder pe = new BCryptPasswordEncoder(4);
 
-        existingUserCount = jdbcTemplate.queryForInt("select count(id) from users");
+        existingUserCount = jdbcTemplate.queryForObject("select count(id) from users", Integer.class);
 
         defaultIdentityProviderId = jdbcTemplate.queryForObject("select id from identity_provider where origin_key = ? and identity_zone_id = ?", String.class, OriginKeys.UAA, "uaa");
 
@@ -169,31 +171,24 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         assertEquals("jo@foo.com", created.getUserName());
         assertNotNull(created.getId());
         assertEquals(LOGIN_SERVER, created.getOrigin());
-        assertEquals(1,
-                     jdbcTemplate.queryForInt(
+        assertThat(jdbcTemplate.queryForObject(
                          "select count(*) from users where origin=? and identity_zone_id=?",
-                         LOGIN_SERVER,
-                         IdentityZone.getUaa().getId()
-                     )
+                         new Object[] {LOGIN_SERVER,IdentityZone.getUaa().getId()},
+                         Integer.class
+                     ), is(1)
         );
         addApprovalAndMembership(created.getId(), created.getOrigin());
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(1));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(1));
 
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(LOGIN_SERVER)
                 .setIdentityZoneId(IdentityZone.getUaa().getId());
         db.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(0,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                LOGIN_SERVER,
-                IdentityZone.getUaa().getId()
-            )
-        );
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {LOGIN_SERVER, IdentityZone.getUaa().getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(0));
     }
 
     @Test
@@ -209,31 +204,19 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         assertNotNull(created.getId());
         assertEquals(LOGIN_SERVER, created.getOrigin());
         assertEquals(zone.getId(), created.getZoneId());
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                LOGIN_SERVER,
-                zone.getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {LOGIN_SERVER, zone.getId()}, Integer.class), is(1));
         addApprovalAndMembership(created.getId(), created.getOrigin());
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(1));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(1));
 
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(LOGIN_SERVER)
                 .setIdentityZoneId(zone.getId());
         db.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(0,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                LOGIN_SERVER,
-                zone.getId()
-            )
-        );
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {LOGIN_SERVER, zone.getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(0));
     }
 
     @Test
@@ -249,27 +232,15 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         assertNotNull(created.getId());
         assertEquals(UAA, created.getOrigin());
         assertEquals(zone.getId(), created.getZoneId());
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                zone.getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, zone.getId()}, Integer.class), is(1));
         addApprovalAndMembership(created.getId(), created.getOrigin());
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(1));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(1));
 
         db.onApplicationEvent(new EntityDeletedEvent<>(zone));
-        assertEquals(0,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                zone.getId()
-            )
-        );
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals where user_id=?", created.getId()));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from group_membership where member_id=?", created.getId()));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, zone.getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals where user_id=?", new Object[] {created.getId()}, Integer.class), is(0));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from group_membership where member_id=?", new Object[] {created.getId()}, Integer.class), is(0));
     }
 
     @Test
@@ -281,25 +252,13 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         assertEquals("jo@foo.com", created.getUserName());
         assertNotNull(created.getId());
         assertEquals(UAA, created.getOrigin());
-        assertEquals(3,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                IdentityZone.getUaa().getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, IdentityZone.getUaa().getId()}, Integer.class), is(3));
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(UAA)
                 .setIdentityZoneId(IdentityZone.getUaa().getId());
         db.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(3,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                IdentityZone.getUaa().getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, IdentityZone.getUaa().getId()}, Integer.class), is(3));
     }
 
     @Test
@@ -315,25 +274,13 @@ public class JdbcScimUserProvisioningTests extends JdbcTestBase {
         assertNotNull(created.getId());
         assertEquals(UAA, created.getOrigin());
         assertEquals(zone.getId(), created.getZoneId());
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                zone.getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, zone.getId()}, Integer.class), is(1));
         IdentityProvider loginServer =
             new IdentityProvider()
                 .setOriginKey(UAA)
                 .setIdentityZoneId(zone.getId());
         db.onApplicationEvent(new EntityDeletedEvent<>(loginServer));
-        assertEquals(1,
-            jdbcTemplate.queryForInt(
-                "select count(*) from users where origin=? and identity_zone_id=?",
-                UAA,
-                zone.getId()
-            )
-        );
+        assertThat(jdbcTemplate.queryForObject("select count(*) from users where origin=? and identity_zone_id=?", new Object[] {UAA, zone.getId()}, Integer.class), is(1));
     }
 
 

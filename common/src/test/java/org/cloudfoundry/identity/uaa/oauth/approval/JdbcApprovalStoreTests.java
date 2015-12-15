@@ -18,6 +18,8 @@ import java.util.List;
 
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.APPROVED;
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.DENIED;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -72,7 +74,7 @@ public class JdbcApprovalStoreTests extends JdbcTestBase {
     @After
     public void cleanupDataSource() throws Exception {
         TestUtils.deleteFrom(dataSource, "authz_approvals");
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from authz_approvals", Integer.class), is(0));
     }
 
     @Test

@@ -73,7 +73,7 @@ public class JdbcPagingList<E> extends AbstractList<E> {
         this.sql = sql;
         this.args = args;
         this.mapper = mapper;
-        this.size = parameterJdbcTemplate.queryForInt(getCountSql(sql), args);
+        this.size = parameterJdbcTemplate.queryForObject(getCountSql(sql), args, Integer.class);
         this.pageSize = pageSize;
         this.limitSqlAdapter = limitSqlAdapter;
     }

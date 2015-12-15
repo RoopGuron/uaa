@@ -158,7 +158,7 @@ public class TestMySQLEmailSearch extends JdbcTestBase {
     }
 
     protected int countRows() throws Exception {
-        return jdbcTemplate.queryForInt("select count(*) from users");
+        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 
     protected List<String> getEmails() {

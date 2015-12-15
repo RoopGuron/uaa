@@ -48,7 +48,7 @@ public class JdbcScimGroupProvisioningTests extends JdbcTestBase {
         validateGroupCount(3);
     }
     private void validateGroupCount(int expected) {
-        existingGroupCount = jdbcTemplate.queryForInt("select count(id) from groups where identity_zone_id='"+IdentityZoneHolder.get().getId()+"'");
+        existingGroupCount = jdbcTemplate.queryForObject("select count(id) from groups where identity_zone_id='"+IdentityZoneHolder.get().getId()+"'", Integer.class);
         assertEquals(expected, existingGroupCount);
     }
 

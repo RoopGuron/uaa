@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +26,7 @@ import org.cloudfoundry.identity.uaa.scim.exception.ScimException;
 import org.cloudfoundry.identity.uaa.security.SecurityContextAccessor;
 import org.cloudfoundry.identity.uaa.zone.IdentityProviderProvisioning;
 import org.cloudfoundry.identity.uaa.zone.MultitenancyFixture;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

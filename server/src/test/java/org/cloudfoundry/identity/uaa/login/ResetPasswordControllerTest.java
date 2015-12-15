@@ -46,9 +46,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -304,7 +304,7 @@ public class ResetPasswordControllerTest extends TestClassNullifier {
 
     @Test
     public void testResetPasswordFormWithInvalidPassword() throws Exception {
-        when(resetPasswordService.resetPassword("bad_code", "password")).thenThrow(new InvalidPasswordException(newArrayList("Msg 2a", "Msg 1a")));
+        when(resetPasswordService.resetPassword("bad_code", "password")).thenThrow(new InvalidPasswordException(Arrays.asList("Msg 2a", "Msg 1a")));
 
         MockHttpServletRequestBuilder post = post("/reset_password.do")
             .contentType(APPLICATION_FORM_URLENCODED)

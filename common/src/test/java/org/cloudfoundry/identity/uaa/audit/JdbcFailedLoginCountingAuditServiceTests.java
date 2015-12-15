@@ -18,6 +18,8 @@ import java.util.List;
 import static org.cloudfoundry.identity.uaa.audit.AuditEventType.PasswordChangeSuccess;
 import static org.cloudfoundry.identity.uaa.audit.AuditEventType.UserAuthenticationFailure;
 import static org.cloudfoundry.identity.uaa.audit.AuditEventType.UserAuthenticationSuccess;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 
 import org.cloudfoundry.identity.uaa.test.JdbcTestBase;
@@ -54,27 +56,27 @@ public class JdbcFailedLoginCountingAuditServiceTests extends JdbcTestBase {
     public void userAuthenticationFailureDeletesOldData() throws Exception {
         long now = System.currentTimeMillis();
         auditService.log(getAuditEvent(UserAuthenticationFailure, "1", "joe"));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(1));
         // Set the created column to 3 hours past
         jdbcTemplate.update("update sec_audit set created=?", new Timestamp(now - 3 * 3600 * 1000));
         auditService.log(getAuditEvent(UserAuthenticationFailure, "1", "joe"));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(1));
     }
 
     @Test
     public void userAuthenticationSuccessResetsData() throws Exception {
         auditService.log(getAuditEvent(UserAuthenticationFailure, "1", "joe"));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(1));
         auditService.log(getAuditEvent(UserAuthenticationSuccess, "1", "joe"));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(0));
     }
 
     @Test
     public void userPasswordChangeSuccessResetsData() throws Exception {
         auditService.log(getAuditEvent(UserAuthenticationFailure, "1", "joe"));
-        assertEquals(1, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(1));
         auditService.log(getAuditEvent(PasswordChangeSuccess, "1", "joe"));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from sec_audit where principal_id='1'"));
+        assertThat(jdbcTemplate.queryForObject("select count(*) from sec_audit where principal_id='1'", Integer.class), is(0));
     }
 
     @Test
