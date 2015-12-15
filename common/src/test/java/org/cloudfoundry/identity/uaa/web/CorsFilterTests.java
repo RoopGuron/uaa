@@ -1,22 +1,5 @@
 package org.cloudfoundry.identity.uaa.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.internal.util.reflection.Whitebox.getInternalState;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -26,7 +9,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.http.HttpStatus;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.internal.util.reflection.Whitebox.getInternalState;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class CorsFilterTests {
 
@@ -399,7 +399,7 @@ public class CorsFilterTests {
     private static void assertStandardCorsPreFlightResponse(final MockHttpServletResponse response) {
         assertEquals("*", response.getHeaderValue("Access-Control-Allow-Origin"));
         assertEquals("GET, POST, PUT, DELETE", response.getHeaderValue("Access-Control-Allow-Methods"));
-        assertEquals("Authorization", response.getHeaderValue("Access-Control-Allow-Headers"));
+        assertThat(response.getHeaderValues("Access-Control-Allow-Headers"), containsInAnyOrder("Authorization"));
         assertEquals("1728000", response.getHeaderValue("Access-Control-Max-Age"));
     }
 
