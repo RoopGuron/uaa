@@ -56,6 +56,8 @@ public class RemoteAuthenticationEndpoint {
     private AuthenticationManager authenticationManager;
     private AuthenticationManager loginAuthenticationManager;
 
+    public RemoteAuthenticationEndpoint() {}
+    
     public void setLoginAuthenticationManager(AuthenticationManager loginAuthenticationManager) {
         this.loginAuthenticationManager = loginAuthenticationManager;
     }

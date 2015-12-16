@@ -80,13 +80,13 @@
 	<mvc:default-servlet-handler />
 
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-		<property name="mediaTypes">
+		<!-- <property name="mediaTypes">
 			<map>
 				<entry key="json" value="application/json" />
 				<entry key="xml" value="application/xml" />
 				<entry key="html" value="test/html" />
 			</map>
-		</property>
+		</property> -->
 		<property name="viewResolvers">
 			<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 				<property name="prefix" value="/WEB-INF/jsp/" />

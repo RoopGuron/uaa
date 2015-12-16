@@ -3,7 +3,23 @@ Project identityCommon = parent.subprojects.find { it.name.equals('cloudfoundry-
 Project identityScim = parent.subprojects.find { it.name.equals('cloudfoundry-identity-scim') }
 Project identityLogin = parent.subprojects.find { it.name.equals('cloudfoundry-identity-login') }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.0.RELEASE")
+    }
+}
+
 apply plugin: 'war'
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'cloudfoundry-identity-uaa'
+    version =  '3.0.0'
+}
 
 processResources {
   //maven replaces project.artifactId in the log4j.properties file
@@ -12,10 +28,11 @@ processResources {
   filter { line -> line.contains('${project.artifactId}') ? line.replace('${project.artifactId}','cloudfoundry-identity-uaa') : line }
 }
 
-war {
+//war {
     //workaround for maven <scope>optional</scope>
-    rootSpec.exclude("**/spring-security-oauth-*.jar")
-}
+//    rootSpec.exclude("**/spring-security-oauth-*.jar")
+//}
+
 apply plugin: 'eclipse-wtp'
 eclipse {
 	wtp {
@@ -26,7 +43,11 @@ eclipse {
 }
 
 description = 'UAA'
+
 dependencies {
+  compile("org.springframework.boot:spring-boot-starter-web")
+  providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
   compile(identityCommon) {
     exclude(module: 'jna')
   }
@@ -60,8 +81,10 @@ dependencies {
     exclude(module: 'slf4j-api')
     exclude(module: 'slf4j-log4j12')
   }
-  providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
-  providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+//  providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
+//  providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+  runtime group: 'javax.servlet', name: 'javax.servlet-api', version:parent.servletVersion
+  runtime group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
   testCompile group: 'org.seleniumhq.selenium', name: 'selenium-java', version:'2.42.2'
   testCompile group: 'com.github.detro.ghostdriver', name: 'phantomjsdriver', version:'1.1.0'
   testCompile group: 'dumbster', name: 'dumbster', version:'1.6'

@@ -12,12 +12,6 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.oauth;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.APPROVED;
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.DENIED;
 import static org.junit.Assert.assertEquals;
@@ -26,10 +20,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import org.cloudfoundry.identity.uaa.oauth.client.ClientConstants;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+
 import org.cloudfoundry.identity.uaa.oauth.approval.Approval;
 import org.cloudfoundry.identity.uaa.oauth.approval.ApprovalStore;
 import org.cloudfoundry.identity.uaa.oauth.approval.JdbcApprovalStore;
+import org.cloudfoundry.identity.uaa.oauth.client.ClientConstants;
 import org.cloudfoundry.identity.uaa.rest.QueryableResourceManager;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
 import org.cloudfoundry.identity.uaa.rest.jdbc.LimitSqlAdapter;
@@ -592,7 +592,7 @@ public class UserManagedAuthzApprovalHandlerTests extends JdbcTestBase {
     @After
     public void cleanupDataSource() throws Exception {
         TestUtils.deleteFrom(dataSource, "authz_approvals");
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals"));
+        assertEquals(0, jdbcTemplate.queryForObject("select count(*) from authz_approvals", Integer.class));
     }
 
     @SuppressWarnings("serial")

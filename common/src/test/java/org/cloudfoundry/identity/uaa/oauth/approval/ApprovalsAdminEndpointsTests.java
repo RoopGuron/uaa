@@ -12,12 +12,6 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.oauth.approval;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.APPROVED;
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.DENIED;
 import static org.junit.Assert.assertEquals;
@@ -26,10 +20,15 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.cloudfoundry.identity.uaa.oauth.client.ClientConstants;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.cloudfoundry.identity.uaa.error.UaaException;
 import org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus;
+import org.cloudfoundry.identity.uaa.oauth.client.ClientConstants;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
 import org.cloudfoundry.identity.uaa.rest.jdbc.SimpleSearchQueryConverter;
 import org.cloudfoundry.identity.uaa.security.SecurityContextAccessor;
@@ -46,6 +45,8 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.InMemoryClientDetailsService;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 public class ApprovalsAdminEndpointsTests extends JdbcTestBase {
     private UaaTestAccounts testAccounts = null;
@@ -104,8 +105,8 @@ public class ApprovalsAdminEndpointsTests extends JdbcTestBase {
     public void cleanupDataSource() throws Exception {
         TestUtils.deleteFrom(dataSource, "authz_approvals");
         TestUtils.deleteFrom(dataSource, "users");
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals"));
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from users"));
+        assertEquals(0, jdbcTemplate.queryForObject("select count(*) from authz_approvals", Integer.class));
+        assertEquals(0, jdbcTemplate.queryForObject("select count(*) from users", Integer.class));
     }
 
     @Test

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @PropertySource("classpath:integration.test.properties")
-public class DefaultIntegrationTestConfig {
+public class DefaultFeatureTestConfig {
 
     @Bean
     public IntegrationTestRule integrationTestRule(@Value("${integration.test.uaa_url}") String baseUrl, Environment environment) {

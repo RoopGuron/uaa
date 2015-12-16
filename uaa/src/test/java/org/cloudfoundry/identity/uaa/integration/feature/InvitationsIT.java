@@ -48,7 +48,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class InvitationsIT {
 
     @Autowired

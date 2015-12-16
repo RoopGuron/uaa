@@ -47,7 +47,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class AutologinIT {
 
     @Autowired @Rule
@@ -141,7 +141,7 @@ public class AutologinIT {
             .build().toUriString();
 
         //rest template that does NOT follow redirects
-        RestTemplate template = new RestTemplate(new DefaultIntegrationTestConfig.HttpClientFactory());
+        RestTemplate template = new RestTemplate(new DefaultFeatureTestConfig.HttpClientFactory());
         headers.remove("Authorization");
         ResponseEntity<Map> authorizeResponse = template.exchange(authorizeUrl,
             HttpMethod.GET,

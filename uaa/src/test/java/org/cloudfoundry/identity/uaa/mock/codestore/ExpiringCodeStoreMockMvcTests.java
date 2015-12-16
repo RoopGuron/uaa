@@ -12,6 +12,15 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.mock.codestore;
 
+import static org.junit.Assert.assertEquals;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.sql.Timestamp;
+
 import org.cloudfoundry.identity.uaa.codestore.ExpiringCode;
 import org.cloudfoundry.identity.uaa.codestore.JdbcExpiringCodeStore;
 import org.cloudfoundry.identity.uaa.mock.InjectedMockContextTest;
@@ -23,15 +32,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-
-import java.sql.Timestamp;
-
-import static org.junit.Assert.assertEquals;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ExpiringCodeStoreMockMvcTests extends InjectedMockContextTest {
 
@@ -233,7 +233,7 @@ public class ExpiringCodeStoreMockMvcTests extends InjectedMockContextTest {
             .andExpect(status().isCreated())
             .andReturn();
 
-        assertEquals(1, getWebApplicationContext().getBean(JdbcTemplate.class).queryForInt("select count(*) from expiring_code_store"));
+        assertEquals(1, getWebApplicationContext().getBean(JdbcTemplate.class).queryForObject("select count(*) from expiring_code_store", Integer.class));
     }
 
 
@@ -271,7 +271,7 @@ public class ExpiringCodeStoreMockMvcTests extends InjectedMockContextTest {
                 .andExpect(status().isCreated())
                 .andReturn();
 
-            assertEquals(2, getWebApplicationContext().getBean(JdbcTemplate.class).queryForInt("select count(*) from expiring_code_store"));
+            assertEquals(2, getWebApplicationContext().getBean(JdbcTemplate.class).queryForObject("select count(*) from expiring_code_store", Integer.class));
         }finally {
             getWebApplicationContext().getBean(JdbcExpiringCodeStore.class).setExpirationInterval(interval);
         }

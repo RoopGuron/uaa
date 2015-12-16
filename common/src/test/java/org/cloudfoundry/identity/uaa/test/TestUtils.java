@@ -69,7 +69,7 @@ public class TestUtils {
     }
 
     public static void assertNoSuchUser(JdbcTemplate template, String column, String value) {
-        assertEquals(0, template.queryForInt("select count(id) from users where " + column + "='" + value + "'"));
+        assertEquals(0, template.queryForObject("select count(id) from users where " + column + "='" + value + "'", Integer.class));
     }
 
 }

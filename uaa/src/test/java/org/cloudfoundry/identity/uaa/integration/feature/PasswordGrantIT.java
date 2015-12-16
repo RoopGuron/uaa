@@ -27,7 +27,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class PasswordGrantIT {
     @Autowired
     @Rule

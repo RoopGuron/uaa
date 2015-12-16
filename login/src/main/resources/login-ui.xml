@@ -486,11 +486,11 @@
     </bean>
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-        <property name="mediaTypes">
+        <!-- <property name="mediaTypes">
             <map>
                 <entry key="json" value="application/json" />
             </map>
-        </property>
+        </property> -->
         <property name="viewResolvers">
             <list>
                 <bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">

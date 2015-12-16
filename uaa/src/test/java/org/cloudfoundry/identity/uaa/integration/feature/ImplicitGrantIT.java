@@ -53,7 +53,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class ImplicitGrantIT {
 
     @Autowired

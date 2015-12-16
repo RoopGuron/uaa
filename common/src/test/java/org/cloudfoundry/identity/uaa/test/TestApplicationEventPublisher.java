@@ -29,4 +29,11 @@ public class TestApplicationEventPublisher<T extends ApplicationEvent> extends T
     public void publishEvent(ApplicationEvent applicationEvent) {
         handleEvent(applicationEvent);
     }
+
+	@Override
+	public void publishEvent(Object applicationEvent) {
+		if (applicationEvent instanceof ApplicationEvent) {
+			handleEvent((ApplicationEvent)applicationEvent);
+		}
+	}
 }

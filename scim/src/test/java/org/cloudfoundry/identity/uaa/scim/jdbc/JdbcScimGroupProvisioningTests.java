@@ -12,12 +12,13 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.scim.jdbc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
 import org.cloudfoundry.identity.uaa.scim.ScimGroup;
 import org.cloudfoundry.identity.uaa.scim.ScimGroupMember;
@@ -48,7 +49,7 @@ public class JdbcScimGroupProvisioningTests extends JdbcTestBase {
         validateGroupCount(3);
     }
     private void validateGroupCount(int expected) {
-        existingGroupCount = jdbcTemplate.queryForInt("select count(id) from groups where identity_zone_id='"+IdentityZoneHolder.get().getId()+"'");
+        existingGroupCount = jdbcTemplate.queryForObject("select count(id) from groups where identity_zone_id='"+IdentityZoneHolder.get().getId()+"'", Integer.class);
         assertEquals(expected, existingGroupCount);
     }
 

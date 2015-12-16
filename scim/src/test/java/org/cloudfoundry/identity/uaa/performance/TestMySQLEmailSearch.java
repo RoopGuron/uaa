@@ -14,6 +14,19 @@
 
 package org.cloudfoundry.identity.uaa.performance;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
 import org.cloudfoundry.identity.uaa.resources.SearchResults;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
 import org.cloudfoundry.identity.uaa.scim.endpoints.ScimUserEndpoints;
@@ -29,19 +42,6 @@ import org.junit.runners.Parameterized.Parameters;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
 public class TestMySQLEmailSearch extends JdbcTestBase {
@@ -158,7 +158,7 @@ public class TestMySQLEmailSearch extends JdbcTestBase {
     }
 
     protected int countRows() throws Exception {
-        return jdbcTemplate.queryForInt("select count(*) from users");
+        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 
     protected List<String> getEmails() {

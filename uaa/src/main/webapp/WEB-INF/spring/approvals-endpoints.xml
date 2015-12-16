@@ -20,8 +20,8 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
 
-    <sec:global-method-security pre-post-annotations="enabled" />
-
+<!--     <sec:global-method-security pre-post-annotations="enabled" />
+ -->
     <bean id="approvalStore" class="org.cloudfoundry.identity.uaa.oauth.approval.JdbcApprovalStore">
         <constructor-arg ref="jdbcTemplate" />
         <constructor-arg ref="jdbcPagingListFactory" />

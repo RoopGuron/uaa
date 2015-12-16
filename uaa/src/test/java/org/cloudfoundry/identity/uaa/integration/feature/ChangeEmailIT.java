@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class ChangeEmailIT {
 
     @Autowired @Rule
@@ -135,7 +135,7 @@ public class ChangeEmailIT {
         String link = testClient.extractLink(message.getBody());
 
         //rest template that does NOT follow redirects
-        RestTemplate restTemplate = new RestTemplate(new DefaultIntegrationTestConfig.HttpClientFactory());
+        RestTemplate restTemplate = new RestTemplate(new DefaultFeatureTestConfig.HttpClientFactory());
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(link, String.class);
         assertEquals(FOUND, responseEntity.getStatusCode());
         assertEquals(new URI("http://localhost:8080/app/"), responseEntity.getHeaders().getLocation());

@@ -12,15 +12,16 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.oauth.approval;
 
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
-
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.APPROVED;
 import static org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus.DENIED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
+
 import org.cloudfoundry.identity.uaa.audit.event.ApprovalModifiedEvent;
 import org.cloudfoundry.identity.uaa.oauth.approval.Approval.ApprovalStatus;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
@@ -72,7 +73,7 @@ public class JdbcApprovalStoreTests extends JdbcTestBase {
     @After
     public void cleanupDataSource() throws Exception {
         TestUtils.deleteFrom(dataSource, "authz_approvals");
-        assertEquals(0, jdbcTemplate.queryForInt("select count(*) from authz_approvals"));
+        assertEquals(0, jdbcTemplate.queryForObject("select count(*) from authz_approvals", Integer.class));
     }
 
     @Test

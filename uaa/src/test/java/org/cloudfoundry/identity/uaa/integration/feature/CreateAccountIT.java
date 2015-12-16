@@ -38,7 +38,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
+@ContextConfiguration(classes = DefaultFeatureTestConfig.class)
 public class CreateAccountIT {
 
     public static final String SECRET = "s3Cret";

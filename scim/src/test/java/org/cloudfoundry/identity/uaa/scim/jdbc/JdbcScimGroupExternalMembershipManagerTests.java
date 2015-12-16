@@ -12,12 +12,12 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.scim.jdbc;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import org.cloudfoundry.identity.uaa.constants.OriginKeys;
 import org.cloudfoundry.identity.uaa.rest.jdbc.JdbcPagingListFactory;
@@ -80,7 +80,7 @@ public class JdbcScimGroupExternalMembershipManagerTests extends JdbcTestBase {
     }
 
     private void validateCount(int expected) {
-        int existingMemberCount = jdbcTemplate.queryForInt("select count(*) from external_group_mapping");
+        int existingMemberCount = jdbcTemplate.queryForObject("select count(*) from external_group_mapping", Integer.class);
         assertEquals(expected, existingMemberCount);
     }
 
@@ -128,19 +128,19 @@ public class JdbcScimGroupExternalMembershipManagerTests extends JdbcTestBase {
         assertEquals(3, edao.query("").size());
         edao.delete("");
         assertEquals(0, edao.query("").size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from external_group_mapping"));
+        assertEquals(3, jdbcTemplate.queryForObject("select count(*) from external_group_mapping", Integer.class));
 
         map3GroupsInEachZone();
         assertEquals(3, edao.query("").size());
         edao.delete("origin eq \""+ OriginKeys.LDAP+"\"");
         assertEquals(0, edao.query("").size());
-        assertEquals(3, jdbcTemplate.queryForInt("select count(*) from external_group_mapping"));
+        assertEquals(3, jdbcTemplate.queryForObject("select count(*) from external_group_mapping", Integer.class));
 
         map3GroupsInEachZone();
         assertEquals(3, edao.query("").size());
         edao.delete("origin eq \""+ OriginKeys.UAA+"\"");
         assertEquals(3, edao.query("").size());
-        assertEquals(6, jdbcTemplate.queryForInt("select count(*) from external_group_mapping"));
+        assertEquals(6, jdbcTemplate.queryForObject("select count(*) from external_group_mapping", Integer.class));
     }
 
 

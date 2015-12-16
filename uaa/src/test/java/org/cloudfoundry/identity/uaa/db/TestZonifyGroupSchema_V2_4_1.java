@@ -14,6 +14,12 @@
 
 package org.cloudfoundry.identity.uaa.db;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.cloudfoundry.identity.uaa.mock.InjectedMockContextTest;
 import org.cloudfoundry.identity.uaa.scim.ScimGroup;
 import org.cloudfoundry.identity.uaa.scim.ScimGroupMember;
@@ -31,12 +37,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
 import org.springframework.validation.AbstractBindingResult;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 public class TestZonifyGroupSchema_V2_4_1 extends InjectedMockContextTest {
 
@@ -108,8 +108,8 @@ public class TestZonifyGroupSchema_V2_4_1 extends InjectedMockContextTest {
 
     @Test
     public void test_Ensure_That_New_Fields_NotNull() {
-        Assert.assertEquals(0, getWebApplicationContext().getBean(JdbcTemplate.class).queryForInt("SELECT count(*) FROM external_group_mapping WHERE origin IS NULL"));
-        Assert.assertEquals(0, getWebApplicationContext().getBean(JdbcTemplate.class).queryForInt("SELECT count(*) FROM groups WHERE identity_zone_id IS NULL"));
+        Assert.assertEquals(0, getWebApplicationContext().getBean(JdbcTemplate.class).queryForObject("SELECT count(*) FROM external_group_mapping WHERE origin IS NULL", Integer.class));
+        Assert.assertEquals(0, getWebApplicationContext().getBean(JdbcTemplate.class).queryForObject("SELECT count(*) FROM groups WHERE identity_zone_id IS NULL", Integer.class));
     }
 
 }

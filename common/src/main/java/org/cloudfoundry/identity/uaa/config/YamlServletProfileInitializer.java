@@ -12,6 +12,16 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.config;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+
 import org.apache.log4j.MDC;
 import org.cloudfoundry.identity.uaa.config.YamlProcessor.ResolutionMethod;
 import org.springframework.context.ApplicationContextInitializer;
@@ -25,15 +35,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.yaml.snakeyaml.Yaml;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An {@link ApplicationContextInitializer} for a web application to enable it
@@ -90,13 +91,17 @@ public class YamlServletProfileInitializer implements ApplicationContextInitiali
         resources.addAll(getResource(servletContext, applicationContext, locations));
 
         if (resources.isEmpty()) {
-            servletContext.log("No YAML environment properties from servlet.  Defaulting to servlet context.");
-            locations = servletContext.getInitParameter(PROFILE_CONFIG_FILE_LOCATIONS);
-            resources.addAll(getResource(servletContext, applicationContext, locations));
+        	if (servletContext != null) {
+	            servletContext.log("No YAML environment properties from servlet.  Defaulting to servlet context.");
+	            locations = servletContext.getInitParameter(PROFILE_CONFIG_FILE_LOCATIONS);
+	            resources.addAll(getResource(servletContext, applicationContext, locations));
+        	}
         }
 
         try {
-            servletContext.log("Loading YAML environment properties from location: " + resources.toString());
+        	if (servletContext != null) {
+        		servletContext.log("Loading YAML environment properties from location: " + resources.toString());
+        	}
             YamlMapFactoryBean factory = new YamlMapFactoryBean();
             factory.setResolutionMethod(ResolutionMethod.OVERRIDE_AND_IGNORE);
 
@@ -123,7 +128,9 @@ public class YamlServletProfileInitializer implements ApplicationContextInitiali
                         .commaDelimitedListToStringArray(locations);
         for (String location : configFileLocations) {
             location = applicationContext.getEnvironment().resolvePlaceholders(location);
-            servletContext.log("Testing for YAML resources at: " + location);
+            if (servletContext != null) {
+            	servletContext.log("Testing for YAML resources at: " + location);
+            }
             Resource resource = applicationContext.getResource(location);
             if (resource != null && resource.exists()) {
                 resources.add(resource);
@@ -161,13 +168,17 @@ public class YamlServletProfileInitializer implements ApplicationContextInitiali
         }
 
         try {
-            servletContext.log("Loading log4j config from location: " + log4jConfigLocation);
+        	if (servletContext != null) {
+        		servletContext.log("Loading log4j config from location: " + log4jConfigLocation);
+        	}
             Log4jConfigurer.initLogging(log4jConfigLocation);
         } catch (FileNotFoundException e) {
             servletContext.log("Error loading log4j config from location: " + log4jConfigLocation, e);
         }
 
-        MDC.put("context", servletContext.getContextPath());
+        if (servletContext != null) {
+        	MDC.put("context", servletContext.getContextPath());
+        }
 
     }
 

@@ -14,8 +14,10 @@ package org.cloudfoundry.identity.uaa.test;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile("Test")
 @ImportResource("file:./src/main/webapp/WEB-INF/spring-servlet.xml")
 public class DefaultIntegrationTestConfig {
     // empty Java config for test to allow @Autowired tests
